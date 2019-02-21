@@ -1,0 +1,40 @@
+=realism
+    doc
+    subcorpus="realism"
+
+=skazka
+    doc
+    subcorpus="skazka"
+
+=detective
+    doc
+    subcorpus="detective"
+
+=horror
+    doc
+    subcorpus="horror"
+
+=love
+    doc
+    subcorpus="love"
+
+=girls-books
+    doc
+    subcorpus="girls"
+
+=nonfiction
+    doc
+    subcorpus="nonfiction"
+
+=fantasy
+    doc
+    subcorpus="fantasy"
+
+=pioneer_heroes
+    doc
+    id="radzievskaya.bolotnye_robinzony" | id="alekseev_oleg.goryachie_gilzy" | id="azbukin.lenkin_salut" | id="braun.yuta_bondarovska" | id="itskovich.musya_pinkenzon" | id="karaseva.kiriushka" | id="kassil.dubinin" | id="korolkov.lenya_golikov" | id="likhanov.borya_tsarikov" | id="morozov.marat_kazej" | id="morozov.yuta" | id="nabatov.zina_portnova" | id="nadzhafov.valya_kotik" | id="shefner.sestra_pechali" | id="suvorina.vitya_korobkov" | id="tsinberg.sedmaya_simfonia" | id="urlanis.tolya_shumov" | id="zharikov.yunbat_ivanov" | id="zuenok.pionery_geroi" | id="alekseev_sergej.ot_moskvy_do_berlina" | id="chumakov.vasya_shishkovsky" | id="krestinskii.malchiki_iz_blokady" | id="morozov.shcherbazevich" | id="korolkov.partizan_lenya_golikov" | id="iliina.chetvertaya_vysota" | id="kassil.ulitsa" | id="koshevaya.povest_o_syne" | id="likstanov.malyshok" | id="likstanov.prickluchenia_yungi" | id="medvedev.eto_bylo_pod_rovno" | id="oseeva.vasek_1" | id="oseeva.vasek_2" | id="perventsev.volodka_partizansky_syn" | id="voronkova.selo" | id="poluyanov.doch_soldata" | id="kolosov.bahmutskii_shlyah"
+
+=devochki
+    doc
+    id="ivanov.byvshiy_bulka_i_ego_doch" | id="andrianova.smert_n1_leny_n" | id="ivanov.trinadcatyy_god_zhizni" | id="korotkov.villisy" | id="kozlov.vozdushnyy_zamok" | id="pashnev.belaya_vorona" | id="zyuzyukin.iz-za_devchonki" | id="andrianova.moy_sumasshedshiy_papa" | id="korotkov.avariya" | id="murashova.polosa_otchuzhdeniya" | id="scherbakova.vam_i_ne_snilos" | id="simonova.krug" | id="zheleznikov.chuchelo"
+

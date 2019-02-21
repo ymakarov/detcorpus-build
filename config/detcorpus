@@ -1,0 +1,69 @@
+PATH "./export/data/detcorpus"
+VERTICAL "./export/vert/detcorpus.vert"
+ENCODING "utf-8"
+LANGUAGE "Russian"
+LOCALE "ru_RU"
+MAINTAINER "Kirill Maslinsky"
+INFO "Корпус советской детской литературы"
+INFOHREF "http://maslinsky.spb.ru/detcorpus"
+TAGSETDOC "https://tech.yandex.ru/mystem/doc/grammemes-values-docpage/"
+WPOSLIST ",прилагательное,A,наречие,ADV,местоименное наречие,ADVPRO,числительное-прилагательное,ANUM,местоимение-прилагательное,APRO,часть композита - сложного слова,COM,союз,CONJ,междометие,INTJ,числительное,NUM,частица,PART,предлог,PR,существительное,S,местоимение-существительное,SPRO,глагол,V"
+
+ATTRIBUTE word
+ATTRIBUTE lemma 
+ATTRIBUTE tag 
+ATTRIBUTE constant {
+    MULTIVALUE yes
+    MULTISEP "|"
+}
+ATTRIBUTE variable {
+    MULTIVALUE yes
+    MULTISEP "|"
+}
+
+STRUCTURE doc {
+    ATTRIBUTE subcorpus {
+        MULTIVALUE yes
+        MULTISEP ":"
+    }
+    ATTRIBUTE id
+    ATTRIBUTE text_year {
+        NUMERIC yes
+    }
+    ATTRIBUTE source_year {
+        NUMERIC yes
+    }
+    ATTRIBUTE author_name {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE author_sex {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE author_birth_year {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE text_title
+    ATTRIBUTE text_genre {
+        MULTIVALUE yes
+        MULTISEP ";"
+        HIERARCHICAL " : "
+        DEFAULTVALUE "UNDEF"
+    }
+    ATTRIBUTE text_theme {
+        MULTIVALUE yes
+        MULTISEP ";"
+    }
+    ATTRIBUTE text_medium
+    ATTRIBUTE wordcount
+}
+DIACHRONIC doc.text_year
+DIACHRONIC doc.source_year
+DIACHRONIC doc.author_birth_year
+STRUCTURE s 
+SHORTREF "=doc.id,=doc.text_year"
+MAXCONTEXT 200
+MAXDETAIL 500
+SUBCDEF detcorpus.subcorpora
