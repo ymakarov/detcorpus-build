@@ -30,6 +30,7 @@ corpsite-detcorpus := detcorpus
 ## SETTINGS
 SHELL := /bin/bash
 .PRECIOUS: %.txt
+.PHONY: unoconv-listener
 ## UTILS
 gitsrc=git --git-dir=$(SRC)/.git/
 
@@ -65,9 +66,9 @@ include remote.mk
 print-%:
 	$(info $*=$($*))
 
-%.txt: %.fb2
+%.txt: %.fb2 | unoconv-listener
 	test -d $(@D) || mkdir -p $(@D)
-	unoconv -f txt -e encoding=utf8 -o $@ $<
+	unoconv -n -f txt -e encoding=utf8 -o $@ $<
 
 %.txt: %.html
 	test -d $(@D) || mkdir -p $(@D)
@@ -107,6 +108,10 @@ export/detcorpus.tar.xz: $(compiled)
 	rm -f $@
 	bash -c "pushd export ; tar cJvf detcorpus.tar.xz --mode='a+r' * ; popd"
 
+unoconv-listener:
+	unoconv --listener &
+	sleep 10
+
 compile: $(compiled)
 
-convert: $(vertfiles:.vert=.txt)
+convert: $(vertfiles:.vert=.txt) 
