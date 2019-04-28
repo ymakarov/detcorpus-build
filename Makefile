@@ -31,6 +31,7 @@ corpsite-detcorpus := detcorpus
 SHELL := /bin/bash
 .PRECIOUS: %.txt
 .PHONY: unoconv-listener
+udmodel := data/ru-ud23.udpipe
 ## UTILS
 gitsrc=git --git-dir=$(SRC)/.git/
 
@@ -74,6 +75,9 @@ print-%:
 	test -d $(@D) || mkdir -p $(@D)
 	w3m -dump $< > $@
 
+%.conllu: %.txt
+	udpiper -m $(udmodel) -i $< -o $@
+
 %.vert: %.html
 	test -d $(@D) || mkdir -p $(@D)
 	w3m -dump $< | mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python mystem2vert.py $@ > $@
@@ -115,3 +119,5 @@ unoconv-listener:
 compile: $(compiled)
 
 convert: $(vertfiles:.vert=.txt) 
+
+parse: $(vertfiles:.vert=.conllu)
