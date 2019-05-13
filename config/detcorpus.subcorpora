@@ -1,34 +1,34 @@
 =realism
     doc
-    subcorpus="realism"
+    genre="realism"
 
 =skazka
     doc
-    subcorpus="skazka"
+    genre="skazka"
 
 =detective
     doc
-    subcorpus="detective"
+    genre="detective"
 
 =horror
     doc
-    subcorpus="horror"
+    genre="horror"
 
 =love
     doc
-    subcorpus="love"
+    genre="love"
 
 =girls-books
     doc
-    subcorpus="girls"
+    genre="girls"
 
 =nonfiction
     doc
-    subcorpus="nonfiction"
+    genre="nonfiction"
 
 =fantasy
     doc
-    subcorpus="fantasy"
+    genre="fantasy"
 
 =pioneer_heroes
     doc
@@ -38,3 +38,6 @@
     doc
     id="ivanov.byvshiy_bulka_i_ego_doch" | id="andrianova.smert_n1_leny_n" | id="ivanov.trinadcatyy_god_zhizni" | id="korotkov.villisy" | id="kozlov.vozdushnyy_zamok" | id="pashnev.belaya_vorona" | id="zyuzyukin.iz-za_devchonki" | id="andrianova.moy_sumasshedshiy_papa" | id="korotkov.avariya" | id="murashova.polosa_otchuzhdeniya" | id="scherbakova.vam_i_ne_snilos" | id="simonova.krug" | id="zheleznikov.chuchelo"
 
+=soviet-post-soviet
+    doc
+    id="krapivin.steklyannye_tajny_simki_zujka" | id="krapivin.trofejnaya_banka_razbitaya_na_duehli" | id="kryukova.povtorenie_proydennogo" | id="basova.sledy" | id="gromova.saharnyj_rebenok" | id="kolpakova.polynnaya_yolka" | id="lejbov.razdelit_na_sto" | id="martirosova.krasnyie_jeltyie_sinie" | id="olefir.kogda_ya_byil_malenkim_u_nas_byla_vojna" | id="perelyaev.indiyskoe_kino" | id="rudashevskiy.zdravstvuy_brat_moy_bzou" | id="rumarchuk.zelenyy_velosiped_na_zelenoy_luzhayke" | id="verkin.oblachnyj_polk" | id="volkova.djentlmenyi_i_snegoviki" | id="yakovleva.deti_vorona" | id="yakovleva.kradenyy_gorod" | id="yakovleva.zhuki_ne_plachut" | id="aromshtam.mohnatyy_rebenok" | id="oleyinikov.velkino_detstvo" | id="dragunskaya.celovatsya_zapreshcheno" | id="ovchinnikova.mortal_kombat_i_drugie_90e" | id="romanovskaya.slepaya_kuricza" | id="savushkina.czarskoe_delo" | id="toropcev.azovskoe_more_i_reka_rozhajka" 

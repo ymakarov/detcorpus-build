@@ -5,6 +5,7 @@ vpath %.txt $(SRC)
 vpath %.fb2 $(SRC)
 vpath %.html $(SRC)
 vpath %.csv $(SRC)
+vpath %.epub $(SRC)
 #
 # SETUP CREDENTIALS
 HOST=detcorpus
@@ -30,14 +31,17 @@ corpsite-detcorpus := detcorpus
 ## SETTINGS
 SHELL := /bin/bash
 .PRECIOUS: %.txt
-.PHONY: unoconv-listener
+#.PHONY: unoconv-listener
 udmodel := data/ru-ud23.udpipe
+numtopics := 50 100 150 200 250 300
+
 ## UTILS
 gitsrc=git --git-dir=$(SRC)/.git/
+db2meta=python3 scripts/db2meta.py --dbfile=$(SRC)/meta.db --genres=$(SRC)/genres.csv
 
 ## HARDCODED FILELIST TWEAKS
 duplicatesrc := $(shell $(gitsrc) ls-files dups)
-skipfiles := emolemmas.txt emowords.txt $(shell $(gitsrc) ls-files depot) 
+skipfiles := emolemmas.txt emowords.txt $(shell $(gitsrc) ls-files depot oldscripts algfio docs) 
 ## STANDARD SOURCE FILELISTS
 gitfiles := $(shell $(gitsrc) ls-files)
 srcfiles := $(filter-out $(duplicatesrc) $(skipfiles), $(gitfiles))
@@ -45,7 +49,9 @@ txtfiles := $(filter %.txt, $(srcfiles))
 srchtmlfiles := $(filter %.html, $(srcfiles))
 srctxtfiles := $(filter-out $(fb2files:.fb2=.txt) $(srchtmlfiles:.html=.txt), $(txtfiles))
 srcfb2files := $(filter %.fb2, $(srcfiles))
-vertfiles := $(srcfb2files:.fb2=.vert) $(srctxtfiles:.txt=.vert) $(srchtmlfiles:.html=.vert)
+srcepubfiles := $(filter %.epub, $(srcfiles))
+textfiles := $(srctxtfiles) $(srcfb2files) $(srchtmlfiles) $(srcepubfiles)
+vertfiles := $(srcfb2files:.fb2=.vert) $(srctxtfiles:.txt=.vert) $(srchtmlfiles:.html=.vert) $(srcepubfiles:.epub=.vert)
 
 help:
 	 @echo 'Makefile for building detcorpus                                           '
@@ -53,11 +59,11 @@ help:
 	 @echo 'Corpus texts source files are expected to be found at: $(SRC)             '
 	 @echo '                                                                          '
 	 @echo '                                                                          '
-	 @echo 'Dependencies: git, python, unoconv, w3m, awk, mystem, daba(TBDeleted)     '
-	 @echo '              manatee-open                                                '
+	 @echo 'Dependencies: git, python, unoconv, w3m, awk, mystem,                     '
+	 @echo '              manatee-open, pandoc                                        '
 	 @echo '                                                                          '
 	 @echo 'Usage:                                                                    '
-	 @echo '   make convert	    convert all sources (fb2, html) into txt             '
+	 @echo '   make convert	    convert all sources (fb2, html) into txt              '
 	 @echo '   make compile      prepare NoSke indexes for all corpora for upload     '
 	 @echo '                                                                          '
 
@@ -71,6 +77,9 @@ print-%:
 	test -d $(@D) || mkdir -p $(@D)
 	unoconv -n -f txt -e encoding=utf8 -o $@ $<
 
+%.txt: %.epub
+	pandoc -o $@ $<
+
 %.txt: %.html
 	test -d $(@D) || mkdir -p $(@D)
 	w3m -dump $< > $@
@@ -80,16 +89,16 @@ print-%:
 
 %.vert: %.html
 	test -d $(@D) || mkdir -p $(@D)
-	w3m -dump $< | mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python mystem2vert.py $@ > $@
-	metaprint -a $< | fgrep -v _auto | sed 's/^\([^:]\+\):/\1_/' | awk -F"\t" 'length($$2) {printf "%s=\"%s\" ", $$1, $$2}' > $*.meta
-	sed -i "1 s\(<doc id=[^ >]\+\).*$$\1 $$(cat $*.meta)>" $@
+	w3m -dump $< | mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python scripts/mystem2vert.py $@ > $@
 
 %.vert: %.txt
 	test -d $(@D) || mkdir -p $(@D)
-	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python mystem2vert.py $@ > $@
+	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python scripts/mystem2vert.py $@ > $@
 
-detcorpus.vert: $(vertfiles)
-	cat $(SRC)/genres.csv | tr ',' ' ' | while read d id genre ; do test -f $$d/$${id%.*}.vert && sed -i "1s/>/ subcorpus=\"$$genre\">/" $$d/$${id%.*}.vert; done
+.metadata: $(textfiles) $(vertfiles)
+	echo $(textfiles) | tr ' ' '\n' | while read f ; do sed -i -e "1c $$($(db2meta) -f $$f)" $${f%.*}.vert ; done && touch $@
+
+detcorpus.vert: $(vertfiles) .metadata
 	rm -f $@
 	echo "$(sort $^)" | tr ' ' '\n' | while read f ; do cat "$$f" >> $@ ; done
 
@@ -121,3 +130,22 @@ compile: $(compiled)
 convert: $(vertfiles:.vert=.txt) 
 
 parse: $(vertfiles:.vert=.conllu)
+
+## LDA
+
+detcorpus.slem: detcorpus.vert
+	gawk -f scripts/vert2lemfragments.gawk $< > $@
+
+detcorpus.vectors: detcorpus.slem
+	mallet import-file --line-regex "^(\S*\t[^\t]*)\t[^\t]*\t([^\t]*)\t([^\t]*)" --label 3 --name 1 --data 2 --keep-sequence --token-regex "[\p{L}\p{N}-]*\p{L}+" --stoplist-file stopwords.txt --input $< --output $@
+
+lda/model%.mallet: detcorpus.vectors
+	mallet train-topics --input $< --num-topics $* --output-model lda/model$*.mallet \
+		--num-threads 4 --random-seed 3219 --num-iterations 1000 --num-icm-iterations 20 \
+		--num-top-words 50 --optimize-interval 20 \
+		--output-topic-keys lda/summary$*.txt \
+		--xml-topic-phrase-report lda/topic-phrase$*.xml \
+		--output-doc-topics lda/doc-topics$*.txt --doc-topics-threshold 0.05 \
+		--diagnostics-file lda/diag$*.xml
+
+lda: $(patsubst %, lda/model%.mallet, $(numtopics))

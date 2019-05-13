@@ -22,18 +22,23 @@ ATTRIBUTE variable {
 }
 
 STRUCTURE doc {
-    ATTRIBUTE subcorpus {
+    ATTRIBUTE genre {
         MULTIVALUE yes
         MULTISEP ":"
     }
     ATTRIBUTE id
+    ATTRIBUTE uuid
     ATTRIBUTE text_year {
         NUMERIC yes
     }
-    ATTRIBUTE source_year {
+    ATTRIBUTE year {
         NUMERIC yes
     }
     ATTRIBUTE author_name {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE author {
         MULTIVALUE yes
         MULTISEP "|"
     }
@@ -45,23 +50,20 @@ STRUCTURE doc {
         MULTIVALUE yes
         MULTISEP "|"
     }
-    ATTRIBUTE text_title
-    ATTRIBUTE text_genre {
+    ATTRIBUTE author_death_year {
         MULTIVALUE yes
-        MULTISEP ";"
-        HIERARCHICAL " : "
-        DEFAULTVALUE "UNDEF"
+        MULTISEP "|"
     }
-    ATTRIBUTE text_theme {
-        MULTIVALUE yes
-        MULTISEP ";"
-    }
-    ATTRIBUTE text_medium
+    ATTRIBUTE title
+    ATTRIBUTE booktitle
+    ATTRIBUTE publisher_unified
+    ATTRIBUTE realname
     ATTRIBUTE wordcount
 }
 DIACHRONIC doc.text_year
-DIACHRONIC doc.source_year
+DIACHRONIC doc.year
 DIACHRONIC doc.author_birth_year
+DIACHRONIC doc.author_death_year
 STRUCTURE s 
 SHORTREF "=doc.id,=doc.text_year"
 MAXCONTEXT 200
