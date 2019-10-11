@@ -1,0 +1,5 @@
+cd /home/detcorpus-build && make -j9 compile
+now=`date +"%m_%d_%Y"`
+cp /home/detcorpus-build/detcorpus.vert /home/detcorpus-build/export/vert
+tar -czf /home/out/export_$now.tar.gz --directory=/home/detcorpus-build export 
+

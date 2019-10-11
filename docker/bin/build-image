@@ -1,0 +1,9 @@
+rm -rf build
+mkdir build
+cp ../Makefile build
+cp ../remote.mk build
+cp -r ../config build
+cp -r ../scripts build
+cp index/* build
+cd build
+docker build -t manatee-index .

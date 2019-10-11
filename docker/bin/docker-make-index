@@ -1,0 +1,1 @@
+docker run -v $1:/home/detcorpus -v $2:/home/out yamakarov/manatee-index:latest 
