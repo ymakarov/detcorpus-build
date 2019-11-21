@@ -42,7 +42,7 @@ docker run -v $1:/home/detcorpus -v $2:/home/out manatee-index
 ```
 docker run -v [path-to]/detcorpus:/home/detcorpus -it manatee-index bin/bash
 ```
-С индексом бывает проблема, по неизвестной причине make в 9 потоков падает на моей машине. Тогда надо поменять количество потоков в ```docker/index/make-index``` и пересобрать образ ```docker/bin/build-image```
+С индексом бывает проблема, по неизвестной причине make в 9 потоков падает на моей машине. Тогда надо поменять количество потоков в ```docker/index/make-index``` и пересобрать образ ```docker/bin/build-image``` Это может быть связано с нехваткой памяти для docker контейнера, максимальный размер задается в настройках docker демона.
 
 ## Запуск веб сервера с построенным индексом
 
