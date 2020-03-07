@@ -31,6 +31,9 @@ STRUCTURE doc {
     ATTRIBUTE text_year {
         NUMERIC yes
     }
+    ATTRIBUTE source_year {
+        NUMERIC yes
+    }
     ATTRIBUTE year {
         NUMERIC yes
     }
@@ -64,8 +67,23 @@ DIACHRONIC doc.text_year
 DIACHRONIC doc.year
 DIACHRONIC doc.author_birth_year
 DIACHRONIC doc.author_death_year
+STRUCTURE f {
+    ATTRIBUTE id
+    ATTRIBUTE lda100 {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE lda200 {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+    ATTRIBUTE lda300 {
+        MULTIVALUE yes
+        MULTISEP "|"
+    }
+}
 STRUCTURE s 
-SHORTREF "=doc.id,=doc.text_year"
+SHORTREF "=doc.id,=doc.text_year,=f.id"
 MAXCONTEXT 200
 MAXDETAIL 500
 SUBCDEF detcorpus.subcorpora

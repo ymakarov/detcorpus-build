@@ -24,7 +24,7 @@
 
 =nonfiction
     doc
-    genre="nonfiction"
+    genre="nonfiction" | genre="encyclopedia"
 
 =fantasy
     doc
@@ -41,3 +41,7 @@
 =soviet-post-soviet
     doc
     id="krapivin.steklyannye_tajny_simki_zujka" | id="krapivin.trofejnaya_banka_razbitaya_na_duehli" | id="kryukova.povtorenie_proydennogo" | id="basova.sledy" | id="gromova.saharnyj_rebenok" | id="kolpakova.polynnaya_yolka" | id="lejbov.razdelit_na_sto" | id="martirosova.krasnyie_jeltyie_sinie" | id="olefir.kogda_ya_byil_malenkim_u_nas_byla_vojna" | id="perelyaev.indiyskoe_kino" | id="rudashevskiy.zdravstvuy_brat_moy_bzou" | id="rumarchuk.zelenyy_velosiped_na_zelenoy_luzhayke" | id="verkin.oblachnyj_polk" | id="volkova.djentlmenyi_i_snegoviki" | id="yakovleva.deti_vorona" | id="yakovleva.kradenyy_gorod" | id="yakovleva.zhuki_ne_plachut" | id="aromshtam.mohnatyy_rebenok" | id="oleyinikov.velkino_detstvo" | id="dragunskaya.celovatsya_zapreshcheno" | id="ovchinnikova.mortal_kombat_i_drugie_90e" | id="romanovskaya.slepaya_kuricza" | id="savushkina.czarskoe_delo" | id="toropcev.azovskoe_more_i_reka_rozhajka" 
+
+=krapivin
+    doc
+    genre="krapivin"
