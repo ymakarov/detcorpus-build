@@ -30,14 +30,16 @@ corpsite-detcorpus := detcorpus
 #
 ## SETTINGS
 SHELL := /bin/bash
-.PRECIOUS: %.txt
+.PRECIOUS: %.txt %.conllu
 #.PHONY: unoconv-listener
-udmodel := data/ru-ud23.udpipe
+udmodel := data/russian-syntagrus-ud-2.5-191206.udpipe
 numtopics := 50 100 150 200 250 300
+metadatadb=$(SRC)/metadata.sql
 
 ## UTILS
 gitsrc=git --git-dir=$(SRC)/.git/
-db2meta=python3 scripts/db2meta.py --dbfile=$(SRC)/meta.db --genres=$(SRC)/genres.csv
+db2meta=python3 scripts/db2meta.py --dbfile=meta.db --genres=$(SRC)/genres.csv
+udpiper := PYTHONPATH=../udpiper python3 ../udpiper/bin/udpiper 
 
 ## HARDCODED FILELIST TWEAKS
 duplicatesrc := $(shell $(gitsrc) ls-files dups)
@@ -71,11 +73,11 @@ help:
 include remote.mk
 
 print-%:
-	$(info $*=$($*))
+	@echo $(info $*=$($*))
 
 %.txt: %.fb2 | unoconv-listener
 	test -d $(@D) || mkdir -p $(@D)
-	unoconv -n -f txt -e encoding=utf8 -o $@ $<
+	unoconv -n -f txt -e encoding=utf8 -o $@ $< || pandoc -t plain -o $@ $<
 
 %.txt: %.epub
 	pandoc -o $@ $<
@@ -85,22 +87,27 @@ print-%:
 	w3m -dump $< > $@
 
 %.conllu: %.txt
-	udpiper -m $(udmodel) -i $< -o $@
+	udpipe --tokenize --tag --parse --output=conllu --outfile=$@ $(udmodel) $<  
 
 %.vert: %.html
 	test -d $(@D) || mkdir -p $(@D)
-	w3m -dump $< | mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python scripts/mystem2vert.py $@ > $@
+	w3m -dump $< | mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python3 scripts/mystem2vert.py $@ > $@
 
 %.vert: %.txt
 	test -d $(@D) || mkdir -p $(@D)
-	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python scripts/mystem2vert.py $@ > $@
+	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python3 scripts/mystem2vert.py $@ > $@
 
-.metadata: $(textfiles) $(vertfiles)
+meta.db: $(metadatadb)
+	sqlite3 $@ < $<
+
+.metadata: $(textfiles) $(vertfiles) meta.db
 	echo $(textfiles) | tr ' ' '\n' | while read f ; do sed -i -e "1c $$($(db2meta) -f $$f)" $${f%.*}.vert ; done && touch $@
 
 detcorpus.vert: $(vertfiles) .metadata
 	rm -f $@
 	echo "$(sort $^)" | tr ' ' '\n' | while read f ; do cat "$$f" >> $@ ; done
+
+conllu: $(vertfiles:.vert=.conllu)
 
 export/data/%/word.lex: config/% %.vert
 	rm -rf export/data/$*
