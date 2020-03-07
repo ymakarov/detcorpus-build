@@ -33,7 +33,7 @@ SHELL := /bin/bash
 .PRECIOUS: %.txt %.conllu
 #.PHONY: unoconv-listener
 udmodel := data/russian-syntagrus-ud-2.5-191206.udpipe
-numtopics := 50 100 150 200 250 300
+numtopics := 100 200 300
 metadatadb=$(SRC)/metadata.sql
 
 ## UTILS
@@ -144,15 +144,28 @@ detcorpus.slem: detcorpus.vert
 	gawk -f scripts/vert2lemfragments.gawk $< > $@
 
 detcorpus.vectors: detcorpus.slem
-	mallet import-file --line-regex "^(\S*\t[^\t]*)\t[^\t]*\t([^\t]*)\t([^\t]*)" --label 3 --name 1 --data 2 --keep-sequence --token-regex "[\p{L}\p{N}-]*\p{L}+" --stoplist-file stopwords.txt --input $< --output $@
+	mallet import-file --line-regex "^(\S*\t[^\t]*)\t([^\t]*)\t([^\t]*)" --label 3 --name 1 --data 2 --keep-sequence --token-regex "[\p{L}\p{N}-]*\p{L}+" --stoplist-file stopwords.txt --input $< --output $@
 
 lda/model%.mallet: detcorpus.vectors
 	mallet train-topics --input $< --num-topics $* --output-model lda/model$*.mallet \
-		--num-threads 4 --random-seed 3219 --num-iterations 1000 --num-icm-iterations 20 \
+		--num-threads 8 --random-seed 987439812 --num-iterations 1000 --num-icm-iterations 20 \
 		--num-top-words 50 --optimize-interval 20 \
 		--output-topic-keys lda/summary$*.txt \
 		--xml-topic-phrase-report lda/topic-phrase$*.xml \
 		--output-doc-topics lda/doc-topics$*.txt --doc-topics-threshold 0.05 \
 		--diagnostics-file lda/diag$*.xml
 
+lda/state%.gz: lda/model%.mallet
+	mallet train-topics --input-model $< --no-inference --output-state $@
+
+lda/labels%.txt: lda/summary%.txt
+	sort -nr -k2 -t"	" $< | gawk -F"\t" '{match($$3, /^([^ ]+ [^ ]+ [^ ]+)/, top); gsub(" ", "_", top[1]); printf "%d %d %s\n", NR, $$1, top[1]}' > $@
+
 lda: $(patsubst %, lda/model%.mallet, $(numtopics))
+
+detcorpus.wlda.vert: detcorpus.vert lda $(patsubst %, lda/labels%.txt, $(numtopics))
+	python3 scripts/addlda2vert.py -l $(patsubst %,lda%,$(numtopics)) -t $(patsubst %,lda/labels%.txt,$(numtopics)) -d $(patsubst %,lda/doc-topics%.txt,$(numtopics)) -i $< -o $@
+
+## NAMES (for the record)
+names:
+	cat lda/doc-topics50.txt | awk '{for (f=4; f<=NF;f++) {if ($f<0.05) {$f=0} else {$f=1}}; print $0}' > lda/doc-topics50i.txt
