@@ -109,13 +109,13 @@ detcorpus.vert: $(vertfiles) .metadata
 
 conllu: $(vertfiles:.vert=.conllu)
 
-export/data/%/word.lex: config/% %.vert
+export/data/%/word.lex: config/% %.wlda.vert
 	rm -rf export/data/$*
 	rm -f export/registry/$*
 	mkdir -p $(@D)
 	mkdir -p export/registry
 	mkdir -p export/vert
-	encodevert -c ./$< -p $(@D) $*.vert
+	encodevert -c ./$< -p $(@D) $*.wlda.vert
 	cp $< export/registry
 ifneq ("$(wildcard config/$*.subcorpora)","")
 	echo "no subcorpora defined for $*:: $(wildcard config/$*.subcorpora)"
