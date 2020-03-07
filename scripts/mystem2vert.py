@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 import sys
@@ -21,7 +21,7 @@ def parse_grammemes(attr):
 
 def print_token(fields):
     s = u'{f[word]}\t{f[lemma]}\t{f[tag]}\t{f[const]}\t{f[var]}\n'.format(f=fields)
-    sys.stdout.write(s.encode("utf-8"))
+    sys.stdout.write(s)
 
 
 def print_header(filename):
@@ -30,22 +30,25 @@ def print_header(filename):
         id, year, printed = m.groups()
         if not printed:
             printed = 'UNDEF'
-        h = u'<doc id="{0}" text_year="{1}" source_year="{2}">\n<s>\n'.format(id, year, printed)
+        h = u'<doc id="{0}" text_year="{1}" source_year="{2}">\n<f id=1>\n<s>\n'.format(id, year, printed)
     else:
-        h = u'<doc>\n<s>\n'
-    sys.stdout.write(h.encode("utf-8"))
+        h = u'<doc>\n<f id=1>\n<s>\n'
+    sys.stdout.write(h)
 
 
 def print_footer():
-    sys.stdout.write(u"</s>\n</doc>\n")
+    sys.stdout.write(u"</s>\n</f>\n</doc>\n")
 
 
 def main():
+    fragsize = 500
+    itoken = 0
+    fragid = 1
     print_header(sys.argv[1])
     fields = defaultdict(str)
     for event, elem in e.iterparse(sys.stdin):
         if elem.tag == 'se':
-            sys.stdout.write("</s>\n<s>\n".encode("utf-8"))
+            sys.stdout.write("</s>\n<s>\n")
         elif elem.tag == 'ana':
             fields['lemma'] = elem.get('lex')
             gr = parse_grammemes(elem.get('gr'))
@@ -53,6 +56,10 @@ def main():
         elif elem.tag == 'w':
             fields['word'] = u''.join(elem.itertext())
             print_token(fields)
+            itoken += 1
+            if (itoken % fragsize) == 0:
+                sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
+                fragid += 1
             fields = defaultdict(str)
             try:
                 tail = elem.tail.strip()
@@ -60,6 +67,10 @@ def main():
                 tail = None
             if tail:
                 print_token(defaultdict(str, word=tail, tag='c', lemma=tail))
+                itoken += 1
+                if (itoken % fragsize) == 0:
+                    sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
+                    fragid += 1
     print_footer()
 
 
