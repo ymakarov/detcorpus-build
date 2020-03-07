@@ -58,8 +58,8 @@ def main():
             print_token(fields)
             itoken += 1
             if (itoken % fragsize) == 0:
-                sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
                 fragid += 1
+                sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
             fields = defaultdict(str)
             try:
                 tail = elem.tail.strip()
