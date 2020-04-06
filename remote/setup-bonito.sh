@@ -10,8 +10,8 @@ do
     pycorplist="$pycorplist u'$corp', "
 done
 # setup apache dir
-cp /etc/httpd2/conf/sites-available/bonito2.conf /etc/httpd2/conf/sites-available/"$corpname".conf
-sed -i "s/bonito2\?/$corpname/g" /etc/httpd2/conf/sites-available/"$corpname".conf
+cp /etc/httpd2/conf/sites-available/bonito.conf /etc/httpd2/conf/sites-available/"$corpname".conf
+sed -i "s/bonito\?/$corpname/g" /etc/httpd2/conf/sites-available/"$corpname".conf
 mkdir -p "$corpdir"
 a2ensite "$corpname"
 # setup bonito instance
@@ -20,3 +20,7 @@ cgifile="$corpdir/run.cgi"
 sed -i "s/\[u'susanne'\]/[$pycorplist]/" "$cgifile"
 sed -i "s/u'susanne'/u'$defaultcorp'/" "$cgifile"
 sed -i "/os.environ\['MANATEE_REGISTRY'\]/s/''/'\/var\/lib\/manatee\/registry'/" "$cgifile"
+# setup crystal instance
+cp /etc/httpd2/conf/sites-available/bonito.conf /etc/httpd2/conf/sites-available/crystal.conf
+sed -i "s/bonito/crystal/g" /etc/httpd2/conf/sites-available/crystal.conf
+a2ensite crystal
