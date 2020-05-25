@@ -69,8 +69,8 @@ def main():
                 print_token(defaultdict(str, word=tail, tag='c', lemma=tail))
                 itoken += 1
                 if (itoken % fragsize) == 0:
-                    sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
                     fragid += 1
+                    sys.stdout.write("</f>\n<f id={}>\n".format(fragid))
     print_footer()
 
 
