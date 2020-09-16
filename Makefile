@@ -162,6 +162,9 @@ lda/state%.gz: lda/model%.mallet
 lda/labels%.txt: lda/summary%.txt
 	sort -nr -k2 -t"	" $< | gawk -F"\t" '{match($$3, /^([^ ]+ [^ ]+ [^ ]+)/, top); gsub(" ", "_", top[1]); printf "%d %d %s\n", NR, $$1, top[1]}' > $@
 
+lda/dtfull%.tsv: lda/model%.mallet
+	mallet train-topics --input-model $< --no-inference --output-doc-topics $@
+
 lda: $(patsubst %, lda/model%.mallet, $(numtopics))
 
 detcorpus.wlda.vert: detcorpus.vert lda $(patsubst %, lda/labels%.txt, $(numtopics))
