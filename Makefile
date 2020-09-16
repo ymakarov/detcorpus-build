@@ -98,6 +98,7 @@ print-%:
 	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python3 scripts/mystem2vert.py $@ > $@
 
 meta.db: $(metadatadb)
+	test -f $@ && rm -f $@
 	sqlite3 $@ < $<
 
 .metadata: $(textfiles) $(vertfiles) meta.db
