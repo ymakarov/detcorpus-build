@@ -6,13 +6,19 @@ import re
 import xml.etree.cElementTree as e
 from collections import defaultdict
 
+def flatten_grammemes_list(grams):
+    out = set()
+    for gset in grams.split('|'):
+        for gram in gset.split(','):
+            out.add(gram)
+    return '|'.join(sorted(out))
 
 def parse_grammemes(attr):
     const, variable = attr.split(u'=')
     tags = const.split(u',')
     pos = tags[0]
     constgram = u'|'.join(tags[1:])
-    vargram = variable.strip('()')
+    vargram = flatten_grammemes_list(variable.strip('()'))
     d = {'tag': pos,
          'const': constgram,
          'var': vargram}
