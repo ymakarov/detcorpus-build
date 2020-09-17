@@ -30,14 +30,14 @@ class MetaDB(object):
 
     def get_all_files(self):
         filelist = []
-        for row in self.query('SELECT filename FROM meta_editions WHERE filename IS NOT NULL'):
+        for row in self.query('SELECT filename FROM editions WHERE filename IS NOT NULL'):
             filelist.append(row[0])
         return filelist
 
     def meta_for_file(self, filename):
         metad = {}
         metad['id'] = self.generate_id(filename)
-        for row in self.query('SELECT author_name, title, booktitle, year, city, publisher_unified, uuid FROM meta_editions JOIN meta_books ON meta_editions.book_id = meta_books.book_id WHERE filename=?', (filename,)):
+        for row in self.query('SELECT author_name, title, booktitle, year, city, publisher, uuid FROM editions JOIN books ON editions.book_id = books.book_id WHERE filename=?', (filename,)):
             metad.update(row)
         try:
             firstyear = self.get_firstprint(metad['uuid'])
@@ -50,7 +50,7 @@ class MetaDB(object):
         return metad
 
     def get_firstprint(self, uuid):
-        c = self.query('select MIN(year) from meta_editions JOIN meta_books ON meta_editions.book_id = meta_books.book_id where uuid=?', (uuid,))
+        c = self.query('select MIN(year) from editions JOIN books ON editions.book_id = books.book_id where uuid=?', (uuid,))
         return c.fetchone()[0]
 
     def get_authors(self, uuid):
@@ -58,11 +58,11 @@ class MetaDB(object):
         authorid = self.query('SELECT author_id, pseudo_id FROM text_author WHERE uuid=?', (uuid,))
         for row in authorid:
             if row['pseudo_id']:
-                authors['author'].append(self.make_authorname('meta_pseudo', 'pseudo_id', row['pseudo_id']))
-                authors['realname'].append(self.make_authorname('meta_authors', 'author_id', row['author_id']))
+                authors['author'].append(self.make_authorname('pseudonyms', 'pseudo_id', row['pseudo_id']))
+                authors['realname'].append(self.make_authorname('authors', 'author_id', row['author_id']))
             else:
-                authors['author'].append(self.make_authorname('meta_authors', 'author_id', row['author_id']))
-            authordata = self.query('SELECT sex, birth_year, death_year FROM meta_authors WHERE author_id=?', (row['author_id'],)).fetchone()
+                authors['author'].append(self.make_authorname('authors', 'author_id', row['author_id']))
+            authordata = self.query('SELECT sex, birth_year, death_year FROM authors WHERE author_id=?', (row['author_id'],)).fetchone()
             authors['author_sex'].append(authordata['sex'])
             authors['author_birth_year'].append(authordata['birth_year'])
             authors['author_death_year'].append(authordata['death_year'])
