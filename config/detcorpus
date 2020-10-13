@@ -8,6 +8,7 @@ INFO "Корпус советской детской литературы"
 INFOHREF "http://maslinsky.spb.ru/detcorpus"
 TAGSETDOC "https://tech.yandex.ru/mystem/doc/grammemes-values-docpage/"
 WPOSLIST ",прилагательное,A,наречие,ADV,местоименное наречие,ADVPRO,числительное-прилагательное,ANUM,местоимение-прилагательное,APRO,часть композита - сложного слова,COM,союз,CONJ,междометие,INTJ,числительное,NUM,частица,PART,предлог,PR,существительное,S,местоимение-существительное,SPRO,глагол,V"
+WSBASE "none"
 
 ATTRIBUTE word
 ATTRIBUTE lemma 
@@ -30,12 +31,15 @@ STRUCTURE doc {
     ATTRIBUTE uuid
     ATTRIBUTE text_year {
         NUMERIC yes
+	DIACHRONIC yes
     }
     ATTRIBUTE source_year {
         NUMERIC yes
+	DIACHRONIC yes
     }
     ATTRIBUTE year {
         NUMERIC yes
+	DIACHRONIC yes
     }
     ATTRIBUTE author_name {
         MULTIVALUE yes

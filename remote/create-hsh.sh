@@ -11,13 +11,8 @@ then number_opt="--number=0"
 else number_opt="--number=1"
 fi
 
-git clone http://git.altlinux.org/people/kirill/packages/crystal-open.git
-pushd crystal-open
-share_network=yes gear-hsh "$number_opt" -- "$hasher_chroot"
-popd
-
 hsh "$number_opt" --initroot --pkg-build-list="basesystem" --no-cache "$hasher_chroot" ; \
-hsh-install "$number_opt" "$hasher_chroot" manatee-open python-module-gdex bonito-open crystal-open apache2-base iproute2 schedutils
+hsh-install "$number_opt" "$hasher_chroot" manatee-open python3-module-gdex bonito-open crystal-open apache2-base iproute2 schedutils
 
 cp bin/setup-corpus-environment.sh "$hasher_chroot/chroot/.in/"
 cp bin/setup-bonito.sh "$hasher_chroot/chroot/.in/"
