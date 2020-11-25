@@ -37,7 +37,7 @@ class MetaDB(object):
     def meta_for_file(self, filename):
         metad = {}
         metad['id'] = self.generate_id(filename)
-        for row in self.query('SELECT author_name, title, booktitle, year, city, publisher, uuid FROM editions JOIN books ON editions.book_id = books.book_id WHERE filename=?', (filename,)):
+        for row in self.query('SELECT author_name, title, booktitle, year, city, publisher, uuid, colophon, sourcetitle FROM editions JOIN books ON editions.book_id = books.book_id WHERE filename=?', (filename,)):
             metad.update(row)
         try:
             firstyear = self.get_firstprint(metad['uuid'])
@@ -48,6 +48,10 @@ class MetaDB(object):
             metad.update(self.fallback_years(filename))
         metad['genre'] = self._genres[filename]
         return metad
+
+    def get_filenames(self):
+        fs = self.query('SELECT filename FROM editions WHERE filename is not NULL and filename != \'\'')
+        return list(map(lambda r: r[0], fs.fetchall()))
 
     def get_firstprint(self, uuid):
         c = self.query('select MIN(year) from editions JOIN books ON editions.book_id = books.book_id where uuid=?', (uuid,))
@@ -63,14 +67,17 @@ class MetaDB(object):
             else:
                 authors['author'].append(self.make_authorname('authors', 'author_id', row['author_id']))
             authordata = self.query('SELECT sex, birth_year, death_year FROM authors WHERE author_id=?', (row['author_id'],)).fetchone()
-            authors['author_sex'].append(authordata['sex'])
-            authors['author_birth_year'].append(authordata['birth_year'])
-            authors['author_death_year'].append(authordata['death_year'])
+            if authordata != None:
+                authors['author_sex'].append(authordata['sex'])
+                authors['author_birth_year'].append(authordata['birth_year'])
+                authors['author_death_year'].append(authordata['death_year'])
         return authors
 
     def make_authorname(self, table, column, a_id):
         c = self.query('SELECT last, first, middle FROM "{}" WHERE {}=?'.format(table.replace('"', '""'), column), (a_id,))
         author = c.fetchone()
+        if author == None:
+            return ''
         return '{last}, {first} {middle}'.format(**author)
 
     def generate_id(self, filename):
@@ -105,15 +112,29 @@ def parse_arguments():
     parser.add_argument('-d', '--dbfile', help='database file')
     parser.add_argument('-g', '--genres', help='genres.csv file')
     parser.add_argument('-f', '--filename', help='return metadata for a given filename')
+    parser.add_argument('-o', '--outfile', help='output all metadata as CSV table')
     return parser.parse_args()
 
 def main():
     args = parse_arguments()
+    meta_db = MetaDB(args.dbfile, args.genres)
     if args.filename:
-        meta_db = MetaDB(args.dbfile, args.genres)
         metad = meta_db.meta_for_file(args.filename)
         print(meta_db.format_docheader(metad))
         del meta_db
+    elif args.outfile:
+        fs = meta_db.get_filenames()
+        fieldnames = ['id', 'year', 'text_year', 'genre', 'publisher', 'author_name', 'booktitle', 'city', 'author_sex',
+                       'author_death_year', 'uuid', 'title', 'author', 'author_birth_year', 'realname', 'colophon', 'sourcetitle']
+        with open(args.outfile, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames)
+            writer.writeheader()
+            for f in fs:
+                metad = meta_db.meta_for_file(f)
+                for k, v in metad.items():
+                    if isinstance(v, list):
+                        metad[k] = ';'.join(str(i) for i in v)
+                writer.writerow(metad) 
 
 if __name__ == '__main__':
     main()
