@@ -25,7 +25,7 @@ def get_mrc_year(record):
                 year = ''
         return year
 
-def join_subfields(fieldlist):
+def join_subfields(fieldlist, delimiter=' '):
         out = []
         for sf in fieldlist:
             if not sf:
@@ -33,7 +33,7 @@ def join_subfields(fieldlist):
             elif isinstance(sf, list):
                 sf = '; '.join(sf)
             out.append(sf)
-        return ' '.join(out)
+        return delimiter.join(out)
 
 def get_colophon(record):
     yearPart = record['210']
@@ -61,14 +61,14 @@ def mrcdata(book_id):
             colophon = get_multi_colophon(parent_volume)
         else:
             logging.exception('No parent volume for {}'.format(book_id))
-        sourcetitle = join_subfields(record['461'].get_subfields('a', 'f')) + ', '
+        sourcetitle = join_subfields(record['461'].get_subfields('a', 'f'), '. ') + ', '
     else:
         sourcetitle = ''
         colophon = get_colophon(record)
     
     titlePart = record['200']
     if titlePart != None: 
-        sourcetitle += join_subfields(titlePart.get_subfields('a', 'e', 'f', 'g'))
+        sourcetitle += join_subfields(titlePart.get_subfields('a', 'e', 'f', 'g'), '. ')
     else:
     	logging.exception('No title for book_id {}'.format(book_id))
 
