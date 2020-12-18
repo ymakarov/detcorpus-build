@@ -101,6 +101,10 @@ meta.db: $(metadatadb)
 	test -f $@ && rm -f $@
 	sqlite3 $@ < $<
 
+.mrc: meta.db
+	test -d mrc || mkdir mrc
+	sqlite3 meta.db "select download_link || ' mrc/' || book_id || '.mrc' from books where download_link is not null" | fgrep -v search.rsl | while read link outfile ; do test -f "$$outfile" || wget "$$link" -O "$$outfile" ; done && touch .mrc
+
 .metadata: $(textfiles) $(vertfiles) meta.db
 	echo $(textfiles) | tr ' ' '\n' | while read f ; do sed -i -e "1c $$($(db2meta) -f $$f)" $${f%.*}.vert ; done && touch $@
 
