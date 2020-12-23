@@ -1,11 +1,11 @@
-PATH "./export/data/detcorpus"
-VERTICAL "./export/vert/detcorpus.vert"
+PATH "./export/data/detcorpus-nonfiction"
+VERTICAL "./export/vert/detcorpus-nonfiction.vert"
 ENCODING "utf-8"
 LANGUAGE "Russian"
 LOCALE "ru_RU"
 MAINTAINER "Kirill Maslinsky"
-INFO "Корпус советской детской литературы"
-INFOHREF "http://maslinsky.spb.ru/detcorpus"
+INFO "Корпус русской прозы для детей и юношества XX—XXI вв. (подкорпус нон-фикшн)"
+INFOHREF "http://detcorpus.ru"
 TAGSETDOC "https://tech.yandex.ru/mystem/doc/grammemes-values-docpage/"
 WPOSLIST ",прилагательное,A,наречие,ADV,местоименное наречие,ADVPRO,числительное-прилагательное,ANUM,местоимение-прилагательное,APRO,часть композита - сложного слова,COM,союз,CONJ,междометие,INTJ,числительное,NUM,частица,PART,предлог,PR,существительное,S,местоимение-существительное,SPRO,глагол,V"
 WSBASE "none"
@@ -30,10 +30,6 @@ STRUCTURE doc {
     ATTRIBUTE id
     ATTRIBUTE uuid
     ATTRIBUTE text_year {
-        NUMERIC yes
-	DIACHRONIC yes
-    }
-    ATTRIBUTE source_year {
         NUMERIC yes
 	DIACHRONIC yes
     }
@@ -63,7 +59,10 @@ STRUCTURE doc {
     }
     ATTRIBUTE title
     ATTRIBUTE booktitle
+    ATTRIBUTE sourcetitle
+    ATTRIBUTE city
     ATTRIBUTE publisher_unified
+    ATTRIBUTE colophon
     ATTRIBUTE realname
     ATTRIBUTE wordcount
 }
@@ -90,4 +89,4 @@ STRUCTURE s
 SHORTREF "=doc.id,=doc.text_year,=f.id"
 MAXCONTEXT 200
 MAXDETAIL 500
-SUBCDEF detcorpus.subcorpora
+SUBCDEF detcorpus-fiction.subcorpora

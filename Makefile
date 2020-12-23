@@ -21,11 +21,12 @@ RSYNC=rsync -avP --stats -e ssh
 ## corpora
 corpbasename := detcorpus
 corpsite := detcorpus
-corpora := detcorpus
+corpora := detcorpus-fiction detcorpus-nonfiction
 corpora-vert := $(addsuffix .vert, $(corpora))
 compiled := $(patsubst %,export/data/%/word.lex,$(corpora))
 ## Remote corpus installation data
 corpsite-detcorpus := detcorpus
+corpora-detcorpus := detcorpus-fiction detcorpus-nonfiction
 #
 #
 ## SETTINGS
@@ -98,7 +99,7 @@ print-%:
 	mystem -n -d -i -g -c -s --format xml $< | sed 's/[^[:print:]]//g' | python3 scripts/mystem2vert.py $@ > $@
 
 meta.db: $(metadatadb)
-	test ! -f $@ || rm -f $@
+	test -f $@ && rm -f $@ || :
 	sqlite3 $@ < $<
 
 .mrc: meta.db
@@ -111,6 +112,12 @@ meta.db: $(metadatadb)
 detcorpus.vert: $(vertfiles) .metadata
 	rm -f $@
 	echo "$(sort $^)" | tr ' ' '\n' | while read f ; do cat "$$f" >> $@ ; done
+
+detcorpus-nonfiction.vert: detcorpus.vert
+	gawk -v mode=nonfic -f scripts/ficnonfic.gawk $< > $@
+
+detcorpus-fiction.vert: detcorpus.vert
+	gawk -v mode=fic -f scripts/ficnonfic.gawk $< > $@
 
 conllu: $(vertfiles:.vert=.conllu)
 
@@ -145,10 +152,10 @@ parse: $(vertfiles:.vert=.conllu)
 
 ## LDA
 
-detcorpus.slem: detcorpus.vert
+%.slem: %.vert
 	gawk -f scripts/vert2lemfragments.gawk $< > $@
 
-detcorpus.vectors: detcorpus.slem
+%.vectors: %.slem
 	mallet import-file --line-regex "^(\S*\t[^\t]*)\t([^\t]*)\t([^\t]*)" --label 3 --name 1 --data 2 --keep-sequence --token-regex "[\p{L}\p{N}-]*\p{L}+" --stoplist-file stopwords.txt --input $< --output $@
 
 lda/model%.mallet: detcorpus.vectors
@@ -171,7 +178,7 @@ lda/dtfull%.tsv: lda/model%.mallet
 
 lda: $(patsubst %, lda/model%.mallet, $(numtopics))
 
-detcorpus.wlda.vert: detcorpus.vert lda $(patsubst %, lda/labels%.txt, $(numtopics))
+%.wlda.vert: %.vert lda $(patsubst %, lda/labels%.txt, $(numtopics))
 	python3 scripts/addlda2vert.py -l $(patsubst %,lda%,$(numtopics)) -t $(patsubst %,lda/labels%.txt,$(numtopics)) -d $(patsubst %,lda/doc-topics%.txt,$(numtopics)) -i $< -o $@
 
 ## NAMES (for the record)
