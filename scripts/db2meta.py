@@ -8,6 +8,22 @@ import re
 import html
 from collections import defaultdict
 
+def get_year(s_year):
+    s_year = str(s_year)
+    pattern = re.compile('\d{4}')
+    m = pattern.search(s_year)
+    max_year = 0
+    while m:
+        year = int(m.group(0))
+        if year > max_year:
+            max_year = year
+        m = pattern.search(s_year, m.end(0))
+    if max_year > 0:
+        return max_year
+    else:
+        print('oops: ' + s_year)
+        return None
+
 class MetaDB(object):
     def __init__(self, dbfile, genres):
         self._conn = sqlite3.connect(dbfile)
@@ -37,13 +53,31 @@ class MetaDB(object):
     def meta_for_file(self, filename):
         metad = {}
         metad['id'] = self.generate_id(filename)
-        for row in self.query('SELECT author_name, title, booktitle, year, city, publisher, uuid, colophon, sourcetitle FROM editions JOIN books ON editions.book_id = books.book_id WHERE filename=?', (filename,)):
+        for row in self.query("SELECT editions.author_name, editions.title, books.booktitle, books.year, books.city, books.publisher, editions.uuid, books.colophon, books.sourcetitle,"
+								" first_books.year as first_book_publication,"
+								" first_books.colophon as first_colophon,"
+								" first_books.sourcetitle as first_sourcetitle" 
+								" FROM editions JOIN books ON editions.book_id = books.book_id"
+								" LEFT JOIN editions as first_editions ON editions.uuid = first_editions.uuid and first_editions.filename is null"
+								" LEFT JOIN books as first_books ON first_editions.book_id = first_books.book_id"
+								" WHERE editions.filename=?", (filename,)):
             metad.update(row)
         try:
             firstyear = self.get_firstprint(metad['uuid'])
             metad['text_year'] = firstyear
             authors = self.get_authors(metad['uuid'])
             metad.update(authors)
+            if not row['first_book_publication']:
+                metad['first_book_publication'] = metad['year']
+            year = get_year(metad['first_book_publication'])
+            if year:
+                metad['year'] = year
+            if row['first_sourcetitle'] or row['first_colophon']:
+                metad['firstprint_description'] = (row['first_sourcetitle'] or '') + ', ' + (row['first_colophon'] or '')
+            else:
+                metad['firstprint_description'] = (row['sourcetitle'] or '') + ', ' + (row['colophon'] or '')
+            metad.pop('first_sourcetitle')
+            metad.pop('first_colophon')
         except (KeyError):
             metad.update(self.fallback_years(filename))
         metad['genre'] = self._genres[filename]
@@ -125,7 +159,8 @@ def main():
     elif args.outfile:
         fs = meta_db.get_filenames()
         fieldnames = ['id', 'year', 'text_year', 'genre', 'publisher', 'author_name', 'booktitle', 'city', 'author_sex',
-                       'author_death_year', 'uuid', 'title', 'author', 'author_birth_year', 'realname', 'colophon', 'sourcetitle']
+                       'author_death_year', 'uuid', 'title', 'author', 'author_birth_year', 'realname', 'colophon', 'sourcetitle',
+						'first_book_publication', 'firstprint_description']
         with open(args.outfile, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames)
             writer.writeheader()
