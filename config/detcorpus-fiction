@@ -1,7 +1,7 @@
 PATH "./export/data/detcorpus-fiction"
 VERTICAL "./export/vert/detcorpus-fiction.vert"
 ENCODING "utf-8"
-LANGUAGE "Russian"
+LANGUAGE "ДетКорпус (художественная литература)"
 LOCALE "ru_RU"
 MAINTAINER "Kirill Maslinsky"
 INFO "Корпус русской прозы для детей и юношества XX—XXI вв."
