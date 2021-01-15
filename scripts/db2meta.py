@@ -21,7 +21,7 @@ def get_year(s_year):
     if max_year > 0:
         return max_year
     else:
-        print('oops: ' + s_year)
+        print('Unknown year: ' + s_year)
         return None
 
 class MetaDB(object):
@@ -50,6 +50,18 @@ class MetaDB(object):
             filelist.append(row[0])
         return filelist
 
+    def concat_description(self, sourcetitle, colophon):
+        result = None 
+        if sourcetitle:
+            result = sourcetitle
+        if colophon:
+            if result:
+                result += ', ' 
+            else:
+                result = ''
+            result += colophon
+        return result
+
     def meta_for_file(self, filename):
         metad = {}
         metad['id'] = self.generate_id(filename)
@@ -63,21 +75,22 @@ class MetaDB(object):
 								" WHERE editions.filename=?", (filename,)):
             metad.update(row)
         try:
-            firstyear = self.get_firstprint(metad['uuid'])
-            metad['text_year'] = firstyear
             authors = self.get_authors(metad['uuid'])
             metad.update(authors)
             if not row['first_book_publication']:
                 metad['first_book_publication'] = metad['year']
             year = get_year(metad['first_book_publication'])
+            metad['edition_year'] = get_year(metad['year'])
+            metad['edition'] = self.concat_description(row['sourcetitle'] , row['colophon'])
             if year:
                 metad['year'] = year
             if row['first_sourcetitle'] or row['first_colophon']:
-                metad['firstprint_description'] = (row['first_sourcetitle'] or '') + ', ' + (row['first_colophon'] or '')
+                metad['firstprint_description'] = self.concat_description(row['first_sourcetitle'], row['first_colophon'])
             else:
-                metad['firstprint_description'] = (row['sourcetitle'] or '') + ', ' + (row['colophon'] or '')
+                metad['firstprint_description'] = metad['edition']
             metad.pop('first_sourcetitle')
             metad.pop('first_colophon')
+            metad.pop('first_book_publication')
         except (KeyError):
             metad.update(self.fallback_years(filename))
         metad['genre'] = self._genres[filename]
@@ -158,9 +171,9 @@ def main():
         del meta_db
     elif args.outfile:
         fs = meta_db.get_filenames()
-        fieldnames = ['id', 'year', 'text_year', 'genre', 'publisher', 'author_name', 'booktitle', 'city', 'author_sex',
+        fieldnames = ['id', 'year', 'edition_year', 'genre', 'publisher', 'author_name', 'booktitle', 'city', 'author_sex',
                        'author_death_year', 'uuid', 'title', 'author', 'author_birth_year', 'realname', 'colophon', 'sourcetitle',
-						'first_book_publication', 'firstprint_description']
+					   'firstprint_description', 'edition']
         with open(args.outfile, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames)
             writer.writeheader()
