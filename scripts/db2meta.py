@@ -178,7 +178,10 @@ def main():
             writer = csv.DictWriter(csvfile, fieldnames)
             writer.writeheader()
             for f in fs:
-                metad = meta_db.meta_for_file(f)
+                try:
+                    metad = meta_db.meta_for_file(f)
+                except AttributeError:
+                    print("NotFound File: {}".format(f))
                 for k, v in metad.items():
                     if isinstance(v, list):
                         metad[k] = ';'.join(str(i) for i in v)
