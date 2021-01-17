@@ -28,20 +28,19 @@ STRUCTURE doc {
         MULTISEP ":"
     }
     ATTRIBUTE id
-    ATTRIBUTE uuid
-    ATTRIBUTE text_year {
-        NUMERIC yes
-	DIACHRONIC yes
-    }
     ATTRIBUTE year {
         NUMERIC yes
 	DIACHRONIC yes
     }
-    ATTRIBUTE author_name {
+    ATTRIBUTE edition_year {
+        NUMERIC yes
+	DIACHRONIC yes
+    }
+    ATTRIBUTE author {
         MULTIVALUE yes
         MULTISEP "|"
     }
-    ATTRIBUTE author {
+    ATTRIBUTE author_name {
         MULTIVALUE yes
         MULTISEP "|"
     }
@@ -57,17 +56,19 @@ STRUCTURE doc {
         MULTIVALUE yes
         MULTISEP "|"
     }
+    ATTRIBUTE realname
     ATTRIBUTE title
     ATTRIBUTE booktitle
     ATTRIBUTE sourcetitle
-    ATTRIBUTE city
-    ATTRIBUTE publisher_unified
     ATTRIBUTE colophon
-    ATTRIBUTE realname
+    ATTRIBUTE firstprint_description
+    ATTRIBUTE edition
+    ATTRIBUTE city
+    ATTRIBUTE publisher
     ATTRIBUTE wordcount
 }
-DIACHRONIC doc.text_year
 DIACHRONIC doc.year
+DIACHRONIC doc.edition_year
 DIACHRONIC doc.author_birth_year
 DIACHRONIC doc.author_death_year
 STRUCTURE f {
@@ -86,7 +87,6 @@ STRUCTURE f {
     }
 }
 STRUCTURE s 
-SHORTREF "=doc.id,=doc.text_year,=f.id"
+SHORTREF "=doc.year,=doc.author,=doc.sourcetitle,=f.id"
 MAXCONTEXT 200
 MAXDETAIL 500
-SUBCDEF detcorpus-fiction.subcorpora
