@@ -40,10 +40,6 @@ STRUCTURE doc {
         MULTIVALUE yes
         MULTISEP "|"
     }
-    ATTRIBUTE author_name {
-        MULTIVALUE yes
-        MULTISEP "|"
-    }
     ATTRIBUTE author_sex {
         MULTIVALUE yes
         MULTISEP "|"
