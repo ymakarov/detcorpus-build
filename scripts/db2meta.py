@@ -106,7 +106,7 @@ class MetaDB(object):
 
     def get_authors(self, uuid):
         authors = defaultdict(list)
-        authorid = self.query('SELECT author_id, pseudo_id FROM text_author WHERE uuid=?', (uuid,))
+        authorid = self.query('SELECT author_id, pseudo_id FROM text_author WHERE uuid=?', (uuid,)).fetchall()
         for row in authorid:
             if row['pseudo_id']:
                 authors['author'].append(self.make_authorname('pseudonyms', 'pseudo_id', row['pseudo_id']))
